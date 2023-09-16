@@ -23,56 +23,133 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: IntlPhoneField(
-              controller: phoneController,
-              initialCountryCode: 'NG',
-              decoration: const InputDecoration(
-                hintText: 'Phone Number',
-                labelText: 'Phone',
-                border: OutlineInputBorder(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 56,
               ),
-              onChanged: (val) {
-                userNumber = val.completeNumber;
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
-            child: Visibility(
-              visible: otpFieldVisibility,
-              child: TextField(
-                controller: otpController,
+              const Text('Log in or sign up to LodgeMe',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+              const Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 10)),
+              IntlPhoneField(
+                controller: phoneController,
+                initialCountryCode: 'NG',
                 decoration: const InputDecoration(
-                  hintText: 'OTP Code',
-                  labelText: 'OTP',
+                  hintText: 'Phone Number',
+                  labelText: 'Phone',
                   border: OutlineInputBorder(),
                 ),
+                onChanged: (val) {
+                  userNumber = val.completeNumber;
+                },
               ),
-            )
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                  child: Visibility(
+                    visible: otpFieldVisibility,
+                    child: TextField(
+                      controller: otpController,
+                      decoration: const InputDecoration(
+                        hintText: 'OTP Code',
+                        labelText: 'OTP',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  )),
+              const SizedBox(
+                width: 300,
+                child: Text(
+                    "We'll send an OTP to confirm your number. Standard message and data rates apply",
+                    style: TextStyle(fontSize: 12)),
+              ),
+              const Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 10)),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (otpFieldVisibility) {
+                      _auth.verifyOTPCode(otpController.text);
+                    } else {
+                      _auth.verifyUserPhoneNumber(userNumber);
+                      debugPrint(userNumber);
+                      if (userNumber.length > 13) {
+                        setState(() => otpFieldVisibility = true);
+                      }
+                    }
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
+                  child: Text(
+                    otpFieldVisibility ? 'Verify' : 'Continue',
+                  ),
+                ),
+              ),
+              const Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 10)),
+              const Row(children: <Widget>[
+                Expanded(child: Divider()),
+                Text("  or  "),
+                Expanded(child: Divider()),
+              ]),
+              const Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 10)),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    fixedSize: const Size.fromHeight(52),
+                    side: const BorderSide(color: Colors.black)),
+                child: const ListTile(
+                    leading: Icon(Icons.mail_outline, color: Colors.black),
+                    title: Text('Continue with Email',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 15))),
+                onPressed: () {},
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 14)),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    fixedSize: const Size.fromHeight(52),
+                    side: const BorderSide(color: Colors.black)),
+                child: const ListTile(
+                    leading: Icon(Icons.facebook, color: Colors.blue),
+                    title: Text('Continue with Facebook',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 15))),
+                onPressed: () {},
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 14)),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    fixedSize: const Size.fromHeight(52),
+                    foregroundColor: Colors.black,
+                    side: const BorderSide(color: Colors.black)),
+                child: const ListTile(
+                    leading: Icon(Icons.icecream),
+                    title: Text('Continue with Google',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 15))),
+                onPressed: () {},
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 14)),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    fixedSize: const Size.fromHeight(52),
+                    side: const BorderSide(color: Colors.black)),
+                child: const ListTile(
+                    leading: Icon(Icons.apple, color: Colors.black),
+                    title: Text('Continue with Apple',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 15))),
+                onPressed: () {},
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (otpFieldVisibility) {
-                _auth.verifyOTPCode(otpController.text);
-              } else {
-                _auth.verifyUserPhoneNumber(userNumber);
-                debugPrint(userNumber);
-                if (userNumber.length > 13) {
-                  setState(() => otpFieldVisibility = true);
-                }
-              }
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            child: Text(
-              otpFieldVisibility ? 'Login' : 'Verify',
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
