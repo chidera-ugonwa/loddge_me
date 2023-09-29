@@ -10,4 +10,6 @@ class Lodge_me {
   // ignore: constant_identifier_names
   static const IconData lodge_me =
       IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData mail =
+      IconData(0xf394, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

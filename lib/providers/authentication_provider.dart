@@ -14,6 +14,8 @@ class AuthProvider with ChangeNotifier {
 
   var receivedID = '';
 
+  void signInWithGoogle() {}
+
   void changeReceivedId(String receivedId) {
     receivedID = receivedId;
     notifyListeners();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
+import 'package:loddge_me/customIcons/mail_icons.dart';
 import 'package:loddge_me/providers/authentication_provider.dart';
 //import 'package:provider/provider.dart';
 
@@ -49,7 +49,7 @@ class _SignUpState extends State<SignUp> {
                 },
               ),
               Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                  padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                   child: Visibility(
                     visible: otpFieldVisibility,
                     child: TextField(
@@ -102,7 +102,7 @@ class _SignUpState extends State<SignUp> {
                     fixedSize: const Size.fromHeight(52),
                     side: const BorderSide(color: Colors.black)),
                 child: const ListTile(
-                    leading: Icon(Icons.mail_outline, color: Colors.black),
+                    leading: Icon(Mail.mail, color: Colors.black),
                     title: Text('Continue with Email',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 15))),
@@ -128,7 +128,7 @@ class _SignUpState extends State<SignUp> {
                     foregroundColor: Colors.black,
                     side: const BorderSide(color: Colors.black)),
                 child: const ListTile(
-                    leading: Icon(Icons.icecream),
+                    leading: Icon(Icons.no_encryption_gmailerrorred),
                     title: Text('Continue with Google',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 15))),
