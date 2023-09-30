@@ -127,9 +127,9 @@ class _SignUpState extends State<SignUp> {
                     fixedSize: const Size.fromHeight(52),
                     foregroundColor: Colors.black,
                     side: const BorderSide(color: Colors.black)),
-                child: const ListTile(
-                    leading: Icon(Icons.no_encryption_gmailerrorred),
-                    title: Text('Continue with Google',
+                child: ListTile(
+                    leading: Image.asset('assets/googlelogo.png', height: 28),
+                    title: const Text('Continue with Google',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 15))),
                 onPressed: () {},
