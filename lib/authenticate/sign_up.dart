@@ -17,8 +17,14 @@ class _SignUpState extends State<SignUp> {
   final AuthProvider _auth = AuthProvider();
 
   String userNumber = '';
-
   bool otpFieldVisibility = false;
+
+  void showSnackBar(context) {
+    const snackBar = SnackBar(
+      content: Text('InvalidOTP'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +78,16 @@ class _SignUpState extends State<SignUp> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (otpFieldVisibility) {
-                      _auth.verifyOTPCode(otpController.text);
+                      dynamic isError =
+                          await _auth.verifyOTPCode(otpController.text);
+                      debugPrint("$isError");
+                      if (isError == null) {
+                        if (context.mounted) {
+                          showSnackBar(context);
+                        }
+                      }
                     } else {
                       _auth.verifyUserPhoneNumber(userNumber);
                       debugPrint(userNumber);

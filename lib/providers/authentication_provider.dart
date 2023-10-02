@@ -8,14 +8,17 @@ class AuthProvider with ChangeNotifier {
 
   Stream<User?> get user_ => auth.authStateChanges();
 
+//reload page
   reload() async {
     return auth.currentUser?.reload();
   }
 
   var receivedID = '';
 
+//sign in with Google
   void signInWithGoogle() {}
 
+//change received id
   void changeReceivedId(String receivedId) {
     receivedID = receivedId;
     notifyListeners();
@@ -42,15 +45,20 @@ class AuthProvider with ChangeNotifier {
   }
 
   //verify otpCode
-  Future<void> verifyOTPCode(String otpCode) async {
+  Future verifyOTPCode(String otpCode) async {
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
       verificationId: receivedID,
       smsCode: otpCode,
     );
     debugPrint(receivedID);
-    await auth
-        .signInWithCredential(credential)
-        .then((value) => debugPrint('User Login In Successful'));
+    try {
+      await auth
+          .signInWithCredential(credential)
+          .then((value) => debugPrint('User Login In Successful'));
+    } catch (e) {
+      debugPrint("$e");
+      return null;
+    }
   }
 
   //sign out
