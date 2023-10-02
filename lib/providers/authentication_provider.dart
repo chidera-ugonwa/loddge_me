@@ -14,9 +14,16 @@ class AuthProvider with ChangeNotifier {
   }
 
   var receivedID = '';
+  int? updateToken = 0;
 
 //sign in with Google
   void signInWithGoogle() {}
+
+//update resend token
+  void updateResendToken(int? resendToken) {
+    updateToken = resendToken;
+    notifyListeners();
+  }
 
 //change received id
   void changeReceivedId(String receivedId) {
@@ -37,7 +44,7 @@ class AuthProvider with ChangeNotifier {
         debugPrint(e.message);
       },
       codeSent: (String verificationId, int? resendToken) {
-        // receivedID = verificationId;
+        updateResendToken(resendToken);
         changeReceivedId(verificationId);
       },
       codeAutoRetrievalTimeout: (String verificationId) {},

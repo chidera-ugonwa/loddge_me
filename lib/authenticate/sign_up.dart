@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:loddge_me/customIcons/mail_icons.dart';
 import 'package:loddge_me/providers/authentication_provider.dart';
-//import 'package:provider/provider.dart';
+import 'package:jumping_dot/jumping_dot.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -18,12 +19,91 @@ class _SignUpState extends State<SignUp> {
 
   String userNumber = '';
   bool otpFieldVisibility = false;
+  late Timer _timer;
+  int _start = 60;
+  bool isLoading = false;
+  bool enableResend = false;
+  bool buttonEnabled = false;
 
+//snackBar widget
   void showSnackBar(context) {
     const snackBar = SnackBar(
       content: Text('InvalidOTP'),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+//timer function
+  void startTimer() {
+    const oneSec = Duration(seconds: 1);
+    Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_start == 0) {
+          setState(() {
+            timer.cancel();
+            enableResend = true;
+          });
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
+    );
+  }
+
+//handle form message
+  Widget handleFormMessage() {
+    if (otpFieldVisibility) {
+      if (enableResend) {
+        return TextButton(
+            style: TextButton.styleFrom(
+                alignment: Alignment.topLeft,
+                foregroundColor: Colors.blue,
+                textStyle: const TextStyle(fontSize: 12)),
+            child: const Text('Resend OTP'),
+            onPressed: () async {
+              _auth.verifyUserPhoneNumber(userNumber);
+              setState(() => _start = 60);
+              startTimer();
+              setState(() {
+                enableResend = false;
+                buttonEnabled = false;
+              });
+            });
+      } else {
+        return Text('OTP sent. Resend OTP in $_start seconds.',
+            style: const TextStyle(fontSize: 12));
+      }
+    } else {
+      return const Text(
+          "We'll send an OTP to confirm your number. Standard message and data rates apply",
+          style: TextStyle(fontSize: 12));
+    }
+  }
+
+  //elevated button child
+  Widget elevatedButtonChild() {
+    if (isLoading) {
+      return JumpingDots(
+        color: Colors.white,
+        radius: 10,
+        numberOfDots: 3,
+        animationDuration: const Duration(milliseconds: 200),
+      );
+    } else {
+      return Text(
+        otpFieldVisibility ? 'Verify' : 'Continue',
+      );
+    }
+  }
+
+//dispose
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   @override
@@ -52,6 +132,9 @@ class _SignUpState extends State<SignUp> {
                 ),
                 onChanged: (val) {
                   userNumber = val.completeNumber;
+                  if (userNumber.length > 13) {
+                    setState(() => buttonEnabled = true);
+                  }
                 },
               ),
               Padding(
@@ -65,42 +148,42 @@ class _SignUpState extends State<SignUp> {
                         labelText: 'OTP',
                         border: OutlineInputBorder(),
                       ),
+                      onChanged: (val) {
+                        if (val.length > 5) {
+                          setState(() => buttonEnabled = true);
+                        }
+                      },
                     ),
                   )),
-              const SizedBox(
-                width: 300,
-                child: Text(
-                    "We'll send an OTP to confirm your number. Standard message and data rates apply",
-                    style: TextStyle(fontSize: 12)),
-              ),
+              SizedBox(width: 300, child: handleFormMessage()),
               const Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 10)),
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    if (otpFieldVisibility) {
-                      dynamic isError =
-                          await _auth.verifyOTPCode(otpController.text);
-                      debugPrint("$isError");
-                      if (isError == null) {
-                        if (context.mounted) {
-                          showSnackBar(context);
-                        }
-                      }
-                    } else {
-                      _auth.verifyUserPhoneNumber(userNumber);
-                      debugPrint(userNumber);
-                      if (userNumber.length > 13) {
-                        setState(() => otpFieldVisibility = true);
-                      }
-                    }
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  },
-                  child: Text(
-                    otpFieldVisibility ? 'Verify' : 'Continue',
-                  ),
-                ),
+                    onPressed: buttonEnabled
+                        ? () async {
+                            if (otpFieldVisibility) {
+                              dynamic isError =
+                                  await _auth.verifyOTPCode(otpController.text);
+                              debugPrint("$isError");
+                              if (isError == null) {
+                                if (context.mounted) {
+                                  showSnackBar(context);
+                                }
+                              }
+                            } else {
+                              _auth.verifyUserPhoneNumber(userNumber);
+                              if (userNumber.length > 13) {
+                                setState(() => otpFieldVisibility = true);
+                                startTimer();
+                                setState(() => buttonEnabled = false);
+                              }
+                            }
+                            FocusManager.instance.primaryFocus?.unfocus();
+                          }
+                        : null,
+                    child: elevatedButtonChild()),
               ),
               const Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 10)),
               const Row(children: <Widget>[
