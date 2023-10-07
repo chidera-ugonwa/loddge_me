@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:loddge_me/providers/authentication_provider.dart';
+import 'package:loddge_me/utils/auth.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});

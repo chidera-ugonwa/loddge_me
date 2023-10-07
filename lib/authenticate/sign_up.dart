@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:loddge_me/customIcons/mail_icons.dart';
-import 'package:loddge_me/providers/authentication_provider.dart';
+import 'package:loddge_me/utils/auth.dart';
+import 'package:loddge_me/authenticate/add_info.dart';
 import 'package:jumping_dot/jumping_dot.dart';
+import 'package:loddge_me/utils/google_sign_in.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -19,7 +21,7 @@ class _SignUpState extends State<SignUp> {
 
   String userNumber = '';
   bool otpFieldVisibility = false;
-  late Timer _timer;
+  Timer? _timer;
   int _start = 60;
   bool isLoading = false;
   bool enableResend = false;
@@ -88,8 +90,9 @@ class _SignUpState extends State<SignUp> {
     if (isLoading) {
       return JumpingDots(
         color: Colors.white,
-        radius: 10,
+        radius: 6,
         numberOfDots: 3,
+        verticalOffset: 10,
         animationDuration: const Duration(milliseconds: 200),
       );
     } else {
@@ -102,7 +105,7 @@ class _SignUpState extends State<SignUp> {
 //dispose
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -142,6 +145,7 @@ class _SignUpState extends State<SignUp> {
                   child: Visibility(
                     visible: otpFieldVisibility,
                     child: TextField(
+                      keyboardType: TextInputType.number,
                       controller: otpController,
                       decoration: const InputDecoration(
                         hintText: 'OTP Code',
@@ -161,9 +165,13 @@ class _SignUpState extends State<SignUp> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10))),
                     onPressed: buttonEnabled
                         ? () async {
                             if (otpFieldVisibility) {
+                              setState(() => isLoading = true);
                               dynamic isError =
                                   await _auth.verifyOTPCode(otpController.text);
                               debugPrint("$isError");
@@ -202,7 +210,11 @@ class _SignUpState extends State<SignUp> {
                     title: Text('Continue with Email',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 15))),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return const AddInfo();
+                  }));
+                },
               ),
               const Padding(padding: EdgeInsets.only(bottom: 14)),
               OutlinedButton(
@@ -228,7 +240,9 @@ class _SignUpState extends State<SignUp> {
                     title: const Text('Continue with Google',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 15))),
-                onPressed: () {},
+                onPressed: () async {
+                  await SignInWithGoogle.signInWithGoogle(context: context);
+                },
               ),
               const Padding(padding: EdgeInsets.only(bottom: 14)),
               OutlinedButton(

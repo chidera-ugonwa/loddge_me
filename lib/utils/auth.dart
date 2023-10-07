@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:loddge_me/models/user.dart';
 
 class AuthProvider with ChangeNotifier {
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -16,8 +17,48 @@ class AuthProvider with ChangeNotifier {
   var receivedID = '';
   int? updateToken = 0;
 
-//sign in with Google
-  void signInWithGoogle() {}
+  //create user object based on firebase user
+  UserId? _userFromFirebaseUser(User? user) {
+    return user != null ? UserId() : null;
+  }
+
+//sign in with email and password
+  Future signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    try {
+      UserCredential result = await auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      User users = result.user!;
+      if (!users.emailVerified) {
+        await users.sendEmailVerification();
+      }
+      return _userFromFirebaseUser(users);
+    } on FirebaseAuthException catch (e) {
+      String error = e.message.toString();
+      return error;
+    }
+  }
+
+//sign up with email and password
+  Future registerWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
+    try {
+      UserCredential result = await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      User user = result.user!;
+      if (!user.emailVerified) {
+        await user.sendEmailVerification();
+      }
+      return _userFromFirebaseUser(user);
+    } on FirebaseAuthException catch (e) {
+      String error = e.message.toString();
+      return error;
+    }
+  }
 
 //update resend token
   void updateResendToken(int? resendToken) {

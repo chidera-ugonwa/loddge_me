@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:loddge_me/providers/authentication_provider.dart';
+import 'package:loddge_me/utils/auth.dart';
 import 'package:loddge_me/wrapper.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           fontFamily: 'Poppins',
           primarySwatch: Colors.teal,
+          primaryColor: Colors.black,
         ),
         home: StreamProvider<User?>.value(
             value: FirebaseAuth.instance.authStateChanges(),
