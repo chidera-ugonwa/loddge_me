@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:loddge_me/models/user.dart';
 
 class AuthProvider with ChangeNotifier {
   FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   User? get currentUser => auth.currentUser;
 
@@ -16,6 +18,24 @@ class AuthProvider with ChangeNotifier {
 
   var receivedID = '';
   int? updateToken = 0;
+
+//create user in firestore
+  Future createUserInFirestore(
+      String username, String password, String birthday) async {
+    DocumentSnapshot doc =
+        await firestore.collection('users').doc(currentUser!.phoneNumber).get();
+
+    if (!doc.exists) {
+      firestore.collection('users').doc(currentUser!.uid).set({
+        'username': username,
+        'birthday': birthday,
+        'phoneNumber': currentUser!.phoneNumber,
+        'email': currentUser!.email,
+        'password': password,
+        'createdOn': DateTime.now(),
+      });
+    }
+  }
 
   //create user object based on firebase user
   UserId? _userFromFirebaseUser(User? user) {
@@ -41,6 +61,12 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+//fetch sign in methods for email
+  Future<List> fetchSignInMethodsForEmail(String email) async {
+    List signInMethods = await auth.fetchSignInMethodsForEmail(email);
+    return signInMethods;
+  }
+
 //sign up with email and password
   Future registerWithEmailAndPassword(
     String email,
@@ -50,6 +76,7 @@ class AuthProvider with ChangeNotifier {
       UserCredential result = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User user = result.user!;
+      debugPrint(user.phoneNumber);
       if (!user.emailVerified) {
         await user.sendEmailVerification();
       }
@@ -98,7 +125,6 @@ class AuthProvider with ChangeNotifier {
       verificationId: receivedID,
       smsCode: otpCode,
     );
-    debugPrint(receivedID);
     try {
       await auth
           .signInWithCredential(credential)

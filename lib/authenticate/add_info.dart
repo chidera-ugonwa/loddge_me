@@ -1,27 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:loddge_me/utils/constants.dart' as constants;
+import 'package:provider/provider.dart';
+import 'package:loddge_me/home/home_page.dart';
+import 'package:loddge_me/utils/auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+import 'package:jumping_dot/jumping_dot.dart';
 
 class AddInfo extends StatefulWidget {
-  const AddInfo({super.key});
+  const AddInfo(this.email, this.phoneNumber, {super.key});
+
+  final String? email;
+  final String? phoneNumber;
 
   @override
   State<AddInfo> createState() => _AddInfoState();
 }
 
 class _AddInfoState extends State<AddInfo> {
+  final AuthProvider _auth = AuthProvider();
   TextEditingController firstNameEditingController = TextEditingController();
   TextEditingController lastNameEditingController = TextEditingController();
   TextEditingController passwordEditingController = TextEditingController();
   TextEditingController emailEditingController = TextEditingController();
+  TextEditingController phoneNumberEditingController = TextEditingController();
   TextEditingController birthdayEditingController = TextEditingController();
+
+  // form key
+  final _formKey = GlobalKey<FormState>();
 
 // Initially password is obscure
   bool _obscureText = true;
-  final agreeAndContinue = constants.agreeAndContinue;
-  final termsOfService = constants.termsOfService;
-  final paymentsTermsOfService = constants.paymentsTermsOfService;
-  final nonDiscriminationPolicy = constants.nonDiscriminationPolicy;
-  final privacyPolicy = constants.privacyPolicy;
+  bool isLoading = false;
+  final agreeAndContinue = const Text('Agree and Continue',
+      style: TextStyle(fontWeight: FontWeight.bold));
+  final termsOfService = TextButton(
+    child: const Text('Terms of Service'),
+    onPressed: () {},
+  );
+  final paymentsTermsOfService = TextButton(
+      child: const Text('Payments Terms of Service'), onPressed: () {});
+  final nonDiscriminationPolicy = TextButton(
+    child: const Text('Non Discrimination Policy'),
+    onPressed: () {},
+  );
+  final privacyPolicy = TextButton(
+    child: const Text('Privacy Policy'),
+    onPressed: () {},
+  );
+
+  @override
+  void initState() {
+    phoneNumberEditingController.text = "${widget.phoneNumber}";
+    emailEditingController.text = "${widget.email}";
+    super.initState();
+  }
 
   // Toggles the password show status
   void _toggle() {
@@ -30,8 +62,24 @@ class _AddInfoState extends State<AddInfo> {
     });
   }
 
+  //elevated button child
+  Widget elevatedButtonChild() {
+    if (!isLoading) {
+      return const Text('Agree and continue', style: TextStyle(fontSize: 18));
+    } else {
+      return JumpingDots(
+        color: Colors.white,
+        radius: 6,
+        numberOfDots: 3,
+        verticalOffset: 10,
+        animationDuration: const Duration(milliseconds: 200),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<User?>(context);
     //firstName field
     final firstNameField = TextFormField(
         autofocus: false,
@@ -84,11 +132,17 @@ class _AddInfoState extends State<AddInfo> {
           birthdayEditingController.text = val!;
         },
         onTap: () async {
-          await showDatePicker(
+          DateTime? pickedDate = await showDatePicker(
               context: context,
               initialDate: DateTime(2000),
               firstDate: DateTime(1985),
               lastDate: DateTime(2005));
+          if (pickedDate != null) {
+            setState(() {
+              birthdayEditingController.text =
+                  DateFormat('yyyy-MM-dd').format(pickedDate);
+            });
+          }
         },
         textInputAction: TextInputAction.next,
         decoration: const InputDecoration(
@@ -98,18 +152,22 @@ class _AddInfoState extends State<AddInfo> {
 
     //Email Field
     final emailField = TextFormField(
-        autofocus: false,
         controller: emailEditingController,
-        keyboardType: TextInputType.emailAddress,
-        validator: (val) => val!.isEmpty ? 'Fill out this field' : null,
-        onSaved: (val) {
-          emailEditingController.text = val!;
-        },
-        textInputAction: TextInputAction.next,
+        readOnly: true,
         decoration: const InputDecoration(
             labelText: 'Email',
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)))));
+
+    //phoneNumber field
+    final phonNumberField = TextField(
+      decoration: const InputDecoration(
+          labelText: 'Phone Number',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)))),
+      controller: phoneNumberEditingController,
+      readOnly: true,
+    );
 
     //PassWord Field
     final passwordField = TextFormField(
@@ -144,65 +202,84 @@ class _AddInfoState extends State<AddInfo> {
       body: SingleChildScrollView(
         child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Add your info',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-                  const SizedBox(height: 20),
-                  firstAndLastName,
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text("Make sure it matches the name on your government ID",
-                      style:
-                          TextStyle(fontSize: 11, color: Colors.grey.shade600)),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  birthdayField,
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                      "To sign up, you need to be at least 18. Other people who use LodgeMe won't see your birthday.",
-                      style:
-                          TextStyle(fontSize: 11, color: Colors.grey.shade600)),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  emailField,
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text("We'll send a verification link to your email",
-                      style:
-                          TextStyle(fontSize: 11, color: Colors.grey.shade600)),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  passwordField,
-                  const SizedBox(height: 20),
-                  Text(
-                      "By selecting $agreeAndContinue, I agree to LodgeMe's $termsOfService, $paymentsTermsOfService and $nonDiscriminationPolicy, and acknowledge the $privacyPolicy ",
-                      style: const TextStyle(fontSize: 11)),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 50,
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          backgroundColor: Colors.black),
-                      child: const Text('Agree and continue',
-                          style: TextStyle(fontSize: 18)),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Add your info',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 24)),
+                    const SizedBox(height: 20),
+                    firstAndLastName,
+                    const SizedBox(
+                      height: 10,
                     ),
-                  )
-                ])),
+                    Text("Make sure it matches the name on your government ID",
+                        style: TextStyle(
+                            fontSize: 11, color: Colors.grey.shade600)),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    birthdayField,
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                        "To sign up, you need to be at least 18. Other people who use LodgeMe won't see your birthday.",
+                        style: TextStyle(
+                            fontSize: 11, color: Colors.grey.shade600)),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    user == null ? emailField : phonNumberField,
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    widget.email == null
+                        ? const Text('')
+                        : Text("We'll send a verification link to your email",
+                            style: TextStyle(
+                                fontSize: 11, color: Colors.grey.shade600)),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    passwordField,
+                    const SizedBox(height: 20),
+                    Text(
+                        "By selecting $agreeAndContinue, I agree to LodgeMe's $termsOfService, $paymentsTermsOfService and $nonDiscriminationPolicy, and acknowledge the $privacyPolicy ",
+                        style: const TextStyle(fontSize: 11)),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 50,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              setState(() => isLoading = true);
+                              if (context.mounted) {
+                                if (widget.email == null) {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return const HomePage();
+                                  }));
+                                } else {
+                                  _auth.registerWithEmailAndPassword(
+                                      "${widget.email}",
+                                      passwordEditingController.text);
+                                }
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              backgroundColor: Colors.black),
+                          child: elevatedButtonChild()),
+                    )
+                  ]),
+            )),
       ),
     );
   }
