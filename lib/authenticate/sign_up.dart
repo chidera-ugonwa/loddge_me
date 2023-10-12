@@ -33,21 +33,22 @@ class _SignUpState extends State<SignUp> {
 
 //snackBar widget
   void showSnackBar(context) {
-    const snackBar = SnackBar(
-      content: Text('InvalidOTP'),
+    final snackBar = SnackBar(
+      width: 200,
+      margin: const EdgeInsets.all(50),
+      backgroundColor: Colors.white,
+      showCloseIcon: true,
+      content: const Text('InvalidOTP'),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
 //check for existing user
   Future checkForExistingUser(String value) async {
-    if (value.startsWith('+')) {
-    } else {
-      var result = await _auth.fetchSignInMethodsForEmail(value);
-      debugPrint(result.toString());
-      if (result.toString() != "[]") {
-        setState(() => userExists = true);
-      }
+    var result = await _auth.fetchSignInMethodsForEmail(value);
+    debugPrint(result.toString());
+    if (result.toString() != "[]") {
+      setState(() => userExists = true);
     }
   }
 
@@ -59,6 +60,7 @@ class _SignUpState extends State<SignUp> {
           return AlertDialog(
             title: const Text("Enter your Email"),
             content: TextField(
+              decoration: const InputDecoration(border: OutlineInputBorder()),
               keyboardType: TextInputType.emailAddress,
               controller: emailController,
             ),
@@ -140,7 +142,7 @@ class _SignUpState extends State<SignUp> {
         radius: 6,
         numberOfDots: 3,
         verticalOffset: 10,
-        animationDuration: const Duration(milliseconds: 200),
+        animationDuration: const Duration(milliseconds: 100),
       );
     } else {
       return Text(
@@ -160,7 +162,7 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     if (toAddInfo) {
       if (userExists) {
-        return const SignIn();
+        return SignIn(emailController.text);
       }
       return AddInfo(emailController.text, null);
     } else {
@@ -228,15 +230,16 @@ class _SignUpState extends State<SignUp> {
                                 setState(() => isLoading = true);
                                 dynamic isError = await _auth
                                     .verifyOTPCode(otpController.text);
-                                debugPrint("$isError");
-                                if (isError == null) {
+                                if (isError != null) {
                                   if (context.mounted) {
                                     showSnackBar(context);
                                   }
+                                } else {
+                                  setState(() {
+                                    toAddInfo = true;
+                                  });
                                 }
                               } else {
-                                await checkForExistingUser(
-                                    phoneController.text);
                                 _auth.verifyUserPhoneNumber(userNumber);
                                 if (userNumber.length > 13) {
                                   setState(() => otpFieldVisibility = true);
@@ -258,6 +261,8 @@ class _SignUpState extends State<SignUp> {
                 const Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 10)),
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                       foregroundColor: Colors.black,
                       fixedSize: const Size.fromHeight(52),
                       side: const BorderSide(color: Colors.black)),
@@ -265,7 +270,9 @@ class _SignUpState extends State<SignUp> {
                       leading: Icon(Mail.mail, color: Colors.black),
                       title: Text('Continue with Email',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 15))),
+                          style: TextStyle(
+                            fontSize: 15,
+                          ))),
                   onPressed: () {
                     enterEmail();
                   },
@@ -273,6 +280,8 @@ class _SignUpState extends State<SignUp> {
                 const Padding(padding: EdgeInsets.only(bottom: 14)),
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                       foregroundColor: Colors.black,
                       fixedSize: const Size.fromHeight(52),
                       side: const BorderSide(color: Colors.black)),
@@ -280,12 +289,16 @@ class _SignUpState extends State<SignUp> {
                       leading: Icon(Icons.facebook, color: Colors.blue),
                       title: Text('Continue with Facebook',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 15))),
+                          style: TextStyle(
+                            fontSize: 15,
+                          ))),
                   onPressed: () {},
                 ),
                 const Padding(padding: EdgeInsets.only(bottom: 14)),
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                       fixedSize: const Size.fromHeight(52),
                       foregroundColor: Colors.black,
                       side: const BorderSide(color: Colors.black)),
@@ -293,7 +306,9 @@ class _SignUpState extends State<SignUp> {
                       leading: Image.asset('assets/googlelogo.png', height: 28),
                       title: const Text('Continue with Google',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 15))),
+                          style: TextStyle(
+                            fontSize: 15,
+                          ))),
                   onPressed: () async {
                     await SignInWithGoogle.signInWithGoogle(context: context);
                   },
@@ -301,6 +316,8 @@ class _SignUpState extends State<SignUp> {
                 const Padding(padding: EdgeInsets.only(bottom: 14)),
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                       foregroundColor: Colors.black,
                       fixedSize: const Size.fromHeight(52),
                       side: const BorderSide(color: Colors.black)),
@@ -308,7 +325,9 @@ class _SignUpState extends State<SignUp> {
                       leading: Icon(Icons.apple, color: Colors.black),
                       title: Text('Continue with Apple',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 15))),
+                          style: TextStyle(
+                            fontSize: 15,
+                          ))),
                   onPressed: () {},
                 ),
               ],

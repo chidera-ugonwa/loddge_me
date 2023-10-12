@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:loddge_me/home/home_page.dart';
 import 'package:loddge_me/authenticate/sign_up.dart';
-import 'package:loddge_me/authenticate/add_info.dart';
+//import 'package:loddge_me/authenticate/add_info.dart';
 
 class Wrapper extends StatefulWidget {
   const Wrapper({super.key});
@@ -18,9 +18,6 @@ class _WrapperState extends State<Wrapper> {
     final user = Provider.of<User?>(context);
 
     if (user != null) {
-      if (user.phoneNumber != null) {
-        return AddInfo(null, user.phoneNumber);
-      }
       return const HomePage();
     } else {
       return const SignUp();

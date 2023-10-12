@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:loddge_me/home/home_page.dart';
@@ -72,7 +73,7 @@ class _AddInfoState extends State<AddInfo> {
         radius: 6,
         numberOfDots: 3,
         verticalOffset: 10,
-        animationDuration: const Duration(milliseconds: 200),
+        animationDuration: const Duration(milliseconds: 100),
       );
     }
   }
@@ -170,28 +171,30 @@ class _AddInfoState extends State<AddInfo> {
     );
 
     //PassWord Field
-    final passwordField = TextFormField(
-      autofocus: false,
-      controller: passwordEditingController,
-      obscureText: _obscureText,
-      validator: (val) => val!.length < 8
-          ? 'Password must contain at least 8 characters'
-          : null,
-      onSaved: (val) {
-        passwordEditingController.text = val!;
-      },
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        labelText: 'Password',
-        border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10))),
-        suffix: InkWell(
-          onTap: _toggle,
-          child: Text(_obscureText ? 'Show' : 'Hide',
-              style: const TextStyle(color: Colors.black)),
-        ),
-      ),
-    );
+    final passwordField = widget.email != null
+        ? TextFormField(
+            autofocus: false,
+            controller: passwordEditingController,
+            obscureText: _obscureText,
+            validator: (val) => val!.length < 8
+                ? 'Password must contain at least 8 characters'
+                : null,
+            onSaved: (val) {
+              passwordEditingController.text = val!;
+            },
+            textInputAction: TextInputAction.next,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              suffix: InkWell(
+                onTap: _toggle,
+                child: Text(_obscureText ? 'Show' : 'Hide',
+                    style: const TextStyle(color: Colors.black)),
+              ),
+            ),
+          )
+        : const SizedBox(height: 0);
 
     return Scaffold(
       appBar: AppBar(
@@ -247,27 +250,80 @@ class _AddInfoState extends State<AddInfo> {
                     ),
                     passwordField,
                     const SizedBox(height: 20),
-                    Text(
-                        "By selecting $agreeAndContinue, I agree to LodgeMe's $termsOfService, $paymentsTermsOfService and $nonDiscriminationPolicy, and acknowledge the $privacyPolicy ",
-                        style: const TextStyle(fontSize: 11)),
+                    SizedBox(
+                      width: double.infinity,
+                      child: RichText(
+                          text: TextSpan(
+                              style: const TextStyle(
+                                  color: Colors.black, fontSize: 12),
+                              text: 'By selecting ',
+                              children: [
+                            TextSpan(
+                                text: 'Agree and continue, ',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {}),
+                            const TextSpan(
+                              text: "I agree to LodgeMe's ",
+                            ),
+                            TextSpan(
+                                text: 'Terms of Service,',
+                                style: const TextStyle(
+                                    decoration: TextDecoration.underline),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {}),
+                            const TextSpan(text: ' '),
+                            TextSpan(
+                                text: 'Payments Terms of Service ',
+                                style: const TextStyle(
+                                    decoration: TextDecoration.underline),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {}),
+                            const TextSpan(text: 'and '),
+                            TextSpan(
+                                text: 'Nondiscriminaiton Policy, ',
+                                style: const TextStyle(
+                                    decoration: TextDecoration.underline),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {}),
+                            const TextSpan(
+                              text: 'and acknowledge the ',
+                            ),
+                            TextSpan(
+                                text: 'Privacy Policy. ',
+                                style: const TextStyle(
+                                    decoration: TextDecoration.underline),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {}),
+                          ])),
+                    ),
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 50,
                       width: double.infinity,
                       child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               setState(() => isLoading = true);
                               if (context.mounted) {
                                 if (widget.email == null) {
+                                  _auth.createUserInFirestore(
+                                      "${firstNameEditingController.text} ${lastNameEditingController.text}",
+                                      passwordEditingController.text,
+                                      birthdayEditingController.text);
                                   Navigator.push(context,
                                       MaterialPageRoute(builder: (context) {
                                     return const HomePage();
                                   }));
                                 } else {
-                                  _auth.registerWithEmailAndPassword(
+                                  await _auth.registerWithEmailAndPassword(
                                       "${widget.email}",
                                       passwordEditingController.text);
+                                  _auth.createUserInFirestore(
+                                      "${firstNameEditingController.text} ${lastNameEditingController.text}",
+                                      passwordEditingController.text,
+                                      birthdayEditingController.text);
                                 }
                               }
                             }

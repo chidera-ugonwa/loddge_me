@@ -23,7 +23,7 @@ class AuthProvider with ChangeNotifier {
   Future createUserInFirestore(
       String username, String password, String birthday) async {
     DocumentSnapshot doc =
-        await firestore.collection('users').doc(currentUser!.phoneNumber).get();
+        await firestore.collection('users').doc(currentUser!.uid).get();
 
     if (!doc.exists) {
       firestore.collection('users').doc(currentUser!.uid).set({
@@ -131,7 +131,7 @@ class AuthProvider with ChangeNotifier {
           .then((value) => debugPrint('User Login In Successful'));
     } catch (e) {
       debugPrint("$e");
-      return null;
+      return e;
     }
   }
 
