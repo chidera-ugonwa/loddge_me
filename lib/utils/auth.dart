@@ -138,9 +138,8 @@ class AuthProvider with ChangeNotifier {
   //sign out
   Future signOut() async {
     try {
-      return await auth.signOut();
+      await auth.signOut();
     } catch (e) {
-      //print(e.toString());
       return null;
     }
   }

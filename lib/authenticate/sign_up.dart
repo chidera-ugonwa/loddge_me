@@ -7,6 +7,8 @@ import 'package:loddge_me/authenticate/sign_in.dart';
 import 'package:loddge_me/authenticate/add_info.dart';
 import 'package:jumping_dot/jumping_dot.dart';
 import 'package:loddge_me/utils/google_sign_in.dart';
+import 'package:loddge_me/utils/facebook_sign_in.dart';
+import 'package:loddge_me/authenticate/account_exists.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -46,9 +48,20 @@ class _SignUpState extends State<SignUp> {
 //check for existing user
   Future checkForExistingUser(String value) async {
     var result = await _auth.fetchSignInMethodsForEmail(value);
-    debugPrint(result.toString());
     if (result.toString() != "[]") {
-      setState(() => userExists = true);
+      if (result.first == 'google.com') {
+        if (context.mounted) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return AccountExists(value);
+          })).then((value) => Navigator.pop(context));
+        }
+      } else {
+        setState(() => userExists = true);
+      }
+    } else {
+      setState(() => toAddInfo = true);
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
     }
   }
 
@@ -75,9 +88,6 @@ class _SignUpState extends State<SignUp> {
                   child: const Text('Continue'),
                   onPressed: () async {
                     await checkForExistingUser(emailController.text);
-                    setState(() => toAddInfo = true);
-                    // ignore: use_build_context_synchronously
-                    Navigator.pop(context);
                   })
             ],
           );
@@ -292,7 +302,9 @@ class _SignUpState extends State<SignUp> {
                           style: TextStyle(
                             fontSize: 15,
                           ))),
-                  onPressed: () {},
+                  onPressed: () {
+                    SignInWithFacebook.signInWithFacebook();
+                  },
                 ),
                 const Padding(padding: EdgeInsets.only(bottom: 14)),
                 OutlinedButton(

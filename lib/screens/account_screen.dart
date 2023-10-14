@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:loddge_me/utils/auth.dart';
+import 'package:loddge_me/utils/google_sign_in.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -21,6 +22,7 @@ class _AccountScreenState extends State<AccountScreen> {
           TextButton(
               onPressed: () {
                 _auth.signOut();
+                SignInWithGoogle.disconnect();
               },
               child: const Text('signout'))
         ],

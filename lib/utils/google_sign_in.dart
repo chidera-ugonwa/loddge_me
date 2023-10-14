@@ -29,17 +29,21 @@ class SignInWithGoogle {
       } on FirebaseAuthException catch (e) {
         if (e.code == 'account-exists-with-different-credential') {
           // handle the error here
-          debugPrint(e.code);
+          return null;
         } else if (e.code == 'invalid-credential') {
           // handle the error here
-          debugPrint(e.code);
+          return null;
         }
       } catch (e) {
         // handle the error here
-        debugPrint('$e.code');
+        return null;
       }
     }
 
     return user;
+  }
+
+  static Future disconnect() {
+    return GoogleSignIn().disconnect();
   }
 }
