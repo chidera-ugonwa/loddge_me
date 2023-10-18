@@ -107,8 +107,9 @@ class _SignInState extends State<SignIn> {
                   color: Colors.white,
                   radius: 6,
                   numberOfDots: 3,
+                  innerPadding: 2.0,
                   verticalOffset: 10,
-                  animationDuration: const Duration(milliseconds: 100),
+                  animationDuration: const Duration(milliseconds: 300),
                 )
               : const Text('Continue')),
     );

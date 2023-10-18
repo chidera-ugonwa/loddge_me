@@ -45,6 +45,8 @@ dependencies:
   intl: ^0.18.1
   provider: ^6.0.5
   flutter_facebook_auth: ^6.0.2
+  carousel_slider: ^4.2.1
+  firebase_storage: ^11.2.8
 
 dev_dependencies:
   flutter_test:
@@ -98,5 +100,8 @@ flutter:
     - family: Mail
       fonts:
         - asset: assets/fonts/Mail.ttf
+    - family: Raleway
+      fonts: 
+        - asset: assets/fonts/Raleway-Regular.ttf
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

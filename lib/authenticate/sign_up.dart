@@ -151,8 +151,9 @@ class _SignUpState extends State<SignUp> {
         color: Colors.white,
         radius: 6,
         numberOfDots: 3,
+        innerPadding: 2.0,
         verticalOffset: 10,
-        animationDuration: const Duration(milliseconds: 100),
+        animationDuration: const Duration(milliseconds: 300),
       );
     } else {
       return Text(
@@ -174,7 +175,7 @@ class _SignUpState extends State<SignUp> {
       if (userExists) {
         return SignIn(emailController.text);
       }
-      return AddInfo(emailController.text, null);
+      return AddInfo(emailController.text, null, true);
     } else {
       return Scaffold(
         body: SingleChildScrollView(
