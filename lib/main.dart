@@ -34,11 +34,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'LodgeMe',
-        theme: ThemeData(
-          fontFamily: 'Poppins',
-          primarySwatch: Colors.teal,
-          primaryColor: Colors.black,
-        ),
+        theme: ThemeData(fontFamily: 'Poppins', primarySwatch: Colors.teal),
         home: StreamProvider<User?>.value(
             value: FirebaseAuth.instance.authStateChanges(),
             initialData: null,

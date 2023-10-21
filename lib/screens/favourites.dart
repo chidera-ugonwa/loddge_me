@@ -2,43 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:loddge_me/models/services.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:jumping_dot/jumping_dot.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:loddge_me/screens/findLodges/lodge_detail.dart';
 
-class LodgesScreen extends StatefulWidget {
-  const LodgesScreen({super.key});
+class FavoritesScreen extends StatefulWidget {
+  const FavoritesScreen({super.key});
 
   @override
-  State<LodgesScreen> createState() => _LodgesScreenState();
+  State<FavoritesScreen> createState() => _FavoritesScreenState();
 }
 
-class _LodgesScreenState extends State<LodgesScreen>
-    with AutomaticKeepAliveClientMixin {
+class _FavoritesScreenState extends State<FavoritesScreen> {
   final Services _services = Services();
   bool isFilled = false;
   bool isLoading = true;
-  List<List> urlsList = [];
+  Map listingDetail = {};
   List urls = [];
-  List<String> items = [];
+  List<dynamic> items = [];
   List<List> imageUrls = [];
   int activePage = 0;
   String? nextPageToken = '';
   late ScrollController _scrollController;
 
-  @override
-  bool get wantKeepAlive => true;
-
-  //snackBar widget
+//snackBar widget
   void showSnackBar(context) {
     const snackBar = SnackBar(
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 1),
-        margin: EdgeInsets.all(50),
-        backgroundColor: Colors.white,
-        showCloseIcon: true,
-        closeIconColor: Colors.black,
-        content: Text('Listing has been added to your favorites',
-            style: TextStyle(color: Colors.black)));
+      duration: Duration(seconds: 1),
+      behavior: SnackBarBehavior.floating,
+      margin: EdgeInsets.all(50),
+      backgroundColor: Colors.white,
+      showCloseIcon: true,
+      closeIconColor: Colors.black,
+      content: Text('Listing has been removed from your favorites',
+          style: TextStyle(color: Colors.black)),
+    );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -55,95 +51,30 @@ class _LodgesScreenState extends State<LodgesScreen>
     });
   }
 
-  parseUrls() {
-    // ignore: unused_local_variable
-    for (var l in imageUrls) {
-      var val = urls.take(5);
-      urlsList.add(val.toList());
-      urls.removeRange(0, 5);
+  //get favorites from firestore
+  Future getFavorites() async {
+    var result = await _services.getListingsFromFireStore();
+    // debugPrint(items.data().toString());
+    for (var item in result) {
+      listingDetail = await item.data();
+      items.add(listingDetail['name']);
+      imageUrls.add(listingDetail['urls']);
     }
-    imageUrls.replaceRange(imageUrls.indexOf(imageUrls.first),
-        imageUrls.indexOf(imageUrls.last) + 1, urlsList);
     setState(() {
       isLoading = false;
     });
-    return null;
-  }
-
-  Future getUserList(String? pageToken) async {
-    final storageRef = FirebaseStorage.instance.ref();
-    final userRef = storageRef.child('users/photos');
-    final result = await userRef.list(ListOptions(
-      maxResults: 5,
-      pageToken: pageToken,
-    ));
-    for (var prefix in result.prefixes) {
-      ListResult result = await prefix.list(ListOptions(
-        maxResults: 5,
-        pageToken: pageToken,
-      ));
-      for (var name in result.prefixes) {
-        items.add(name.name);
-        ListResult resolt = await name.list(ListOptions(
-          maxResults: 5,
-          pageToken: pageToken,
-        ));
-        imageUrls.add(resolt.items);
-        for (var item in resolt.items) {
-          String result = await item.getDownloadURL();
-          urls.add(result);
-        }
-        pageToken = resolt.nextPageToken;
-      }
-      pageToken = result.nextPageToken;
-    }
-    pageToken = result.nextPageToken;
-    parseUrls();
   }
 
   @override
   void initState() {
-    getUserList(nextPageToken);
     _scrollController = ScrollController();
+    getFavorites();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
-      appBar: AppBar(
-          automaticallyImplyLeading: false,
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          centerTitle: true,
-          title: Material(
-            elevation: 3,
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-            child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Colors.transparent, //New
-                        blurRadius: 25.0,
-                        offset: Offset(0, -25))
-                  ],
-                ),
-                width: double.infinity,
-                height: 40,
-                child: TextField(
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Search by Name',
-                    prefixIcon: const Icon(Icons.search, color: Colors.black),
-                    suffixIcon: IconButton(
-                        color: Colors.black,
-                        onPressed: () {},
-                        icon: const Icon(Icons.filter_list_rounded)),
-                  ),
-                )),
-          )),
       body: isLoading
           ? Center(
               child: JumpingDots(
@@ -162,13 +93,10 @@ class _LodgesScreenState extends State<LodgesScreen>
                     height: 20,
                   ),
                   const Padding(
-                    padding: EdgeInsets.fromLTRB(20.0, 0, 20, 0),
-                    child: Text('Listings',
+                    padding: EdgeInsets.fromLTRB(20.0, 80, 20, 0),
+                    child: Text('Favorites',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 24)),
-                  ),
-                  const SizedBox(
-                    height: 20,
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -208,18 +136,7 @@ class _LodgesScreenState extends State<LodgesScreen>
                                                   .favorite_border_outlined),
                                               onPressed: () {
                                                 _services
-                                                    .saveListingsToFireStore(
-                                                        items[index],
-                                                        '250k',
-                                                        imageUrls[index],
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        [],
-                                                        '',
-                                                        '',
-                                                        '')
+                                                    .deleteListing(items[index])
                                                     .then((value) =>
                                                         showSnackBar(context));
                                               },

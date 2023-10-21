@@ -1,9 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-//import 'package:provider/provider.dart';
 import 'package:loddge_me/home/home_page.dart';
 import 'package:loddge_me/utils/auth.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:jumping_dot/jumping_dot.dart';
 

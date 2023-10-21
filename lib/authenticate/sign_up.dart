@@ -233,6 +233,7 @@ class _SignUpState extends State<SignUp> {
                   height: 50,
                   child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.teal,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10))),
                       onPressed: buttonEnabled

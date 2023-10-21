@@ -8,8 +8,14 @@ class AuthProvider with ChangeNotifier {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   User? get currentUser => auth.currentUser;
+  bool refreshFav = false;
 
   Stream<User?> get user_ => auth.authStateChanges();
+
+  void updateVar() {
+    refreshFav = true;
+    notifyListeners();
+  }
 
 //reload page
   reload() async {
