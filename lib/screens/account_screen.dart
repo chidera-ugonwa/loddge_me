@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:loddge_me/utils/auth.dart';
 import 'package:loddge_me/utils/google_sign_in.dart';
@@ -11,6 +12,8 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   final AuthProvider _auth = AuthProvider();
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,11 +38,19 @@ class _AccountScreenState extends State<AccountScreen> {
                             icon: const Icon(Icons.notifications_outlined,
                                 color: Colors.black))),
                     const SizedBox(height: 10),
-                    const ListTile(
-                      leading: CircleAvatar(),
-                      title: Text('Chidera'),
-                      subtitle: Text('Show profile'),
-                      trailing: Icon(Icons.arrow_forward_outlined,
+                    ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.grey.shade300,
+                        child: const Icon(
+                          Icons.account_circle_outlined,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                      title: Text(
+                          _firebaseAuth.currentUser!.displayName.toString()),
+                      subtitle: const Text('Show profile'),
+                      trailing: const Icon(Icons.arrow_forward_outlined,
                           color: Colors.black),
                     ),
                     const SizedBox(height: 10),

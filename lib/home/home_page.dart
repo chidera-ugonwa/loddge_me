@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:loddge_me/authenticate/add_info.dart';
 import 'package:loddge_me/screens/findLodges/find_lodges_screen.dart';
 import 'package:loddge_me/screens/account_screen.dart';
-import 'package:loddge_me/screens/chats_screen.dart';
+import 'package:loddge_me/screens/chats/chats_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:loddge_me/screens/reserved_lodges.dart';
 import 'package:loddge_me/screens/favourites.dart';
