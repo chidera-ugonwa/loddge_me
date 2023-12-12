@@ -151,7 +151,7 @@ class _LodgesScreenState extends State<LodgesScreen>
               radius: 6,
               numberOfDots: 3,
               innerPadding: 2.0,
-              verticalOffset: 10,
+              verticalOffset: 11,
               animationDuration: const Duration(milliseconds: 300),
             ))
           : SingleChildScrollView(
